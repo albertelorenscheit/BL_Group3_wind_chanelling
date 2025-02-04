@@ -11,3 +11,14 @@ def AWS_file_loader(file_name):
     df = df.astype(float)
     # change all other collumns to float
     return df
+
+def compute_t_stat(x,t_0=0):
+    """Computs the t-statistic of a distribution and the associated p-value.
+    By default, it computes the deviation from t_0 = 0, but you may specify
+    another value. Eg: for a linear regression slope, you could use t_0 = 1."""
+
+    from scipy import stats
+    tstat, pval = stats.ttest_1samp(x, 0)
+    return {'t_0':t_0,
+            'tstat':tstat,
+            'pval':pval}
