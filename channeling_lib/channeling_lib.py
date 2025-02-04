@@ -29,3 +29,17 @@ def compute_t_stat(x,t_0=0):
     return {'t_0':t_0,
             'tstat':tstat,
             'pval':pval}
+
+def save_figure(fig, folder_path, filename, file_format='png'):
+ 
+    import os
+    # Ensure the folder exists
+    os.makedirs(folder_path, exist_ok=True)
+
+    # Create the full file path
+    file_path = os.path.join(folder_path, f"{filename}.{file_format}")
+
+    # Save the figure
+    fig.savefig(file_path, format=file_format, bbox_inches='tight')
+
+    return file_path
