@@ -43,3 +43,10 @@ def save_figure(fig, folder_path, filename, file_format='png'):
     fig.savefig(file_path, format=file_format, bbox_inches='tight')
 
     return file_path
+
+def load_path():
+    """Automatically returns the correct path for Linux or Windows users"""
+    import platform
+    if platform.system() =='Linux': path='/home/clc/Desktop/AGF350_data/Data/'
+    elif platform.system() =='Windows': path='../Data/'
+    return path
