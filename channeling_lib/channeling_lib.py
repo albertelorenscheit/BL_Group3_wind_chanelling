@@ -51,3 +51,28 @@ def load_path():
     if platform.system() =='Linux': path='/home/clc/Desktop/AGF350_data/Data/'
     elif platform.system() =='Windows': path='../Data/'
     return path
+
+def filter_data_based_on_time(df, setup_time, maintenance_start_time, maintenance_duration, retrieval_time, is_second_file=False):
+    """
+    Filtert die Daten basierend auf den angegebenen Zeitbereichen für das 1. und 2. Dataset.
+    
+    :param df: Der DataFrame mit den Rohdaten.
+    :param setup_time: Der Setup-Zeitpunkt in UTC (als pd.Timestamp).
+    :param maintenance_start_time: Der Startzeitpunkt der Wartung in UTC (als pd.Timestamp).
+    :param maintenance_duration: Die Dauer der Wartung in Minuten.
+    :param retrieval_time: Der Retrieval-Zeitpunkt in UTC (als pd.Timestamp).
+    :param is_second_file: True, wenn es sich um das 2. Dataset handelt, andernfalls False für das 1. Dataset.
+    :return: Der gefilterte DataFrame.
+    """
+    if is_second_file:
+        # Filter für das 2. Dataset: nach Maintenance start time + duration + 5 Minuten und Retrieval time - 5 Minuten
+        start_time = maintenance_start_time + pd.Timedelta(minutes=int(maintenance_duration))
+        end_time = retrieval_time
+    else:
+        # Filter für das 1. Dataset: nach Setup time + 5 Minuten und Maintenance start time - 5 Minuten
+        start_time = setup_time
+        end_time = maintenance_start_time
+
+    # Filter die Daten innerhalb des angegebenen Zeitrahmens
+    filtered_df = df[(df.index >= start_time) & (df.index <= end_time)]
+    return filtered_df
