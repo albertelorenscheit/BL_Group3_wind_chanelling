@@ -1,0 +1,16 @@
+import sys
+sys.path.append("..")
+
+import pandas as pd 
+from channeling_lib import AWS_file_loader, save_figure, load_path
+import os
+import glob
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+
+# Specify general folder:
+aws_nonCal_path = load_path()+'RawData/AWS/'
+aws_Cal_path = load_path()+'CalibratedData/AWS/'
+
+stations_str = ['Tom Joad','Rosanna','Bette Davis', 'Layla', 'Mrs Robinson']
+# FROM LOW TO HIGH
