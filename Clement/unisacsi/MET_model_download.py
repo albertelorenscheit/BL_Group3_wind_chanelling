@@ -73,6 +73,7 @@ def download_MET_model_data(config_file):
 
 
 
+
 def download_MET_model_static_fields(config_file):
     """
     Function to download and save the static fields (lon, lat, orog and lsm)
@@ -124,7 +125,6 @@ def download_MET_model_static_fields(config_file):
     print(f"Static fields were successfully saved into {out_path}.")
 
     return
-
 
 
 class MET_model_download_class():
@@ -1538,4 +1538,7 @@ class MET_model_download_class():
         
         
         return
-    
+
+
+#download_MET_model_data('config_model_download_3d_fields.yml')
+download_MET_model_data('config_model_download_2d_fields.yml')

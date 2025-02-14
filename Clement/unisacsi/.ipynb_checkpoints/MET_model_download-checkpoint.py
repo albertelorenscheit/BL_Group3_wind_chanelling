@@ -125,6 +125,7 @@ def download_MET_model_static_fields(config_file):
 
     return
 
+download_MET_model_static_fields('config_model_download.yml')
 
 
 class MET_model_download_class():
