@@ -87,6 +87,7 @@ def mean_wind_direction(wind_directions):
     df.resample('h').apply(mean_wind_direction)
     will resample your wind direction at any scale (maybe at minute
     time scale?) to an hourly, with proper mean.
+    You can also just feed it a numpy array.
 
     It converts all your wind directions into unit vectors, takes
     the cos and sin of the sum of all vectors to compute the hourly
