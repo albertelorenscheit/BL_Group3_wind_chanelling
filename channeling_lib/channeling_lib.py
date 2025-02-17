@@ -53,6 +53,7 @@ def load_path():
     return path
 
 def filter_data_based_on_time(df, setup_time, maintenance_start_time, maintenance_duration, retrieval_time, is_second_file=False):
+    import pandas as pd
     """
     Filtert die Daten basierend auf den angegebenen Zeitbereichen für das 1. und 2. Dataset.
     
@@ -76,3 +77,44 @@ def filter_data_based_on_time(df, setup_time, maintenance_start_time, maintenanc
     # Filter die Daten innerhalb des angegebenen Zeitrahmens
     filtered_df = df[(df.index >= start_time) & (df.index <= end_time)]
     return filtered_df
+
+def load_aws_calibration_data(aws_Cal_path, stations_str):
+    import os
+    import glob
+    import pandas as pd
+    """
+    Load AWS calibration data from CSV files into a dictionary.
+    
+    Parameters:
+        aws_Cal_path (str): Path to the directory containing AWS calibration CSV files.
+        stations_str (list): List of expected station names.
+    
+    Returns:
+        dict: A dictionary where keys are station names and values are DataFrames with indexed timestamps.
+    """
+    aws_Cal_data = {}
+    
+    # Find all CSV files in the directory
+    csv_files = glob.glob(os.path.join(aws_Cal_path, "*.csv"))
+    
+    # Create a mapping from expected station names to their file names
+    station_mapping = {s.replace(" ", "").lower(): s for s in stations_str}
+    
+    # Loop through each CSV file and store it in the dictionary
+    for file in csv_files:
+        # Extract the filename without extension
+        file_name = os.path.splitext(os.path.basename(file))[0]  # e.g., "Rosanna_filtered_data"
+        
+        # Normalize the filename (remove spaces, lowercase) to match stations_str keys
+        normalized_name = file_name.replace("_filtered_data", "").replace(" ", "").lower()
+        
+        # Check if the filename matches one of the station names
+        if normalized_name in station_mapping:
+            station_name = station_mapping[normalized_name]  # Get correct station name from mapping
+            aws_Cal_data[station_name] = pd.read_csv(file)
+            
+            # Convert TIMESTAMP to datetime and set as index
+            aws_Cal_data[station_name]["TIMESTAMP"] = pd.to_datetime(aws_Cal_data[station_name]["TIMESTAMP"])
+            aws_Cal_data[station_name].set_index("TIMESTAMP", inplace=True)
+    
+    return aws_Cal_data
