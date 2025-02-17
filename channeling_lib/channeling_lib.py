@@ -26,10 +26,11 @@ def compute_t_stat(x,t_0=0):
     another value. Eg: for a linear regression slope, you could use t_0 = 1."""
 
     from scipy import stats
-    tstat, pval = stats.ttest_1samp(x, 0)
+    tstat, pval = stats.ttest_1samp(x, t_0)
     return {'t_0':t_0,
             'tstat':tstat,
             'pval':pval}
+
 
 def save_figure(fig, folder_path, filename, file_format='png'):
  
@@ -76,3 +77,27 @@ def filter_data_based_on_time(df, setup_time, maintenance_start_time, maintenanc
     # Filter die Daten innerhalb des angegebenen Zeitrahmens
     filtered_df = df[(df.index >= start_time) & (df.index <= end_time)]
     return filtered_df
+
+def mean_wind_direction(wind_directions):
+    """When resampling with pandas, you need to specify a method,
+    for example: mean. This works great but not for wind direction
+    because it has cyclical boundaries. You can use the following
+    line of code instead:
+    df.resample('h').apply(mean_wind_direction)
+    will resample your wind direction at any scale (maybe at minute
+    time scale?) to an hourly, with proper mean.
+
+    It converts all your wind directions into unit vectors, takes
+    the cos and sin of the sum of all vectors to compute the hourly
+    mean.
+    """
+    wind_directions = np.radians(wind_directions)  # Convert to radians
+    u = np.cos(wind_directions)
+    v = np.sin(wind_directions)
+
+    mean_u = np.mean(u)
+    mean_v = np.mean(v)
+
+    mean_angle = np.arctan2(mean_v, mean_u)  # Compute mean angle
+    mean_angle = np.degrees(mean_angle)  # Convert back to degrees
+    return mean_angle % 360  # Ensure it is within 0-360°
