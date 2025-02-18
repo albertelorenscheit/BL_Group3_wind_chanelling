@@ -26,10 +26,11 @@ def compute_t_stat(x,t_0=0):
     another value. Eg: for a linear regression slope, you could use t_0 = 1."""
 
     from scipy import stats
-    tstat, pval = stats.ttest_1samp(x, 0)
+    tstat, pval = stats.ttest_1samp(x, t_0)
     return {'t_0':t_0,
             'tstat':tstat,
             'pval':pval}
+
 
 def save_figure(fig, folder_path, filename, file_format='png'):
  
@@ -53,7 +54,6 @@ def load_path():
     return path
 
 def filter_data_based_on_time(df, setup_time, maintenance_start_time, maintenance_duration, retrieval_time, is_second_file=False):
-    import pandas as pd
     """
     Filtert die Daten basierend auf den angegebenen Zeitbereichen für das 1. und 2. Dataset.
     
@@ -78,43 +78,28 @@ def filter_data_based_on_time(df, setup_time, maintenance_start_time, maintenanc
     filtered_df = df[(df.index >= start_time) & (df.index <= end_time)]
     return filtered_df
 
-def load_aws_calibration_data(aws_Cal_path, stations_str):
-    import os
-    import glob
-    import pandas as pd
+
+def mean_wind_direction(wind_directions):
+    """When resampling with pandas, you need to specify a method,
+    for example: mean. This works great but not for wind direction
+    because it has cyclical boundaries. You can use the following
+    line of code instead:
+    df.resample('h').apply(mean_wind_direction)
+    will resample your wind direction at any scale (maybe at minute
+    time scale?) to an hourly, with proper mean.
+    You can also just feed it a numpy array.
+
+    It converts all your wind directions into unit vectors, takes
+    the cos and sin of the sum of all vectors to compute the hourly
+    mean.
     """
-    Load AWS calibration data from CSV files into a dictionary.
-    
-    Parameters:
-        aws_Cal_path (str): Path to the directory containing AWS calibration CSV files.
-        stations_str (list): List of expected station names.
-    
-    Returns:
-        dict: A dictionary where keys are station names and values are DataFrames with indexed timestamps.
-    """
-    aws_Cal_data = {}
-    
-    # Find all CSV files in the directory
-    csv_files = glob.glob(os.path.join(aws_Cal_path, "*.csv"))
-    
-    # Create a mapping from expected station names to their file names
-    station_mapping = {s.replace(" ", "").lower(): s for s in stations_str}
-    
-    # Loop through each CSV file and store it in the dictionary
-    for file in csv_files:
-        # Extract the filename without extension
-        file_name = os.path.splitext(os.path.basename(file))[0]  # e.g., "Rosanna_filtered_data"
-        
-        # Normalize the filename (remove spaces, lowercase) to match stations_str keys
-        normalized_name = file_name.replace("_filtered_data", "").replace(" ", "").lower()
-        
-        # Check if the filename matches one of the station names
-        if normalized_name in station_mapping:
-            station_name = station_mapping[normalized_name]  # Get correct station name from mapping
-            aws_Cal_data[station_name] = pd.read_csv(file)
-            
-            # Convert TIMESTAMP to datetime and set as index
-            aws_Cal_data[station_name]["TIMESTAMP"] = pd.to_datetime(aws_Cal_data[station_name]["TIMESTAMP"])
-            aws_Cal_data[station_name].set_index("TIMESTAMP", inplace=True)
-    
-    return aws_Cal_data
+    wind_directions = np.radians(wind_directions)  # Convert to radians
+    u = np.cos(wind_directions)
+    v = np.sin(wind_directions)
+
+    mean_u = np.mean(u)
+    mean_v = np.mean(v)
+
+    mean_angle = np.arctan2(mean_v, mean_u)  # Compute mean angle
+    mean_angle = np.degrees(mean_angle)  # Convert back to degrees
+    return mean_angle % 360  # Ensure it is within 0-360°
