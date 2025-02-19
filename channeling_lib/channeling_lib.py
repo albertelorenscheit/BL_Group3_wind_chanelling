@@ -93,6 +93,8 @@ def mean_wind_direction(wind_directions):
     the cos and sin of the sum of all vectors to compute the hourly
     mean.
     """
+    import numpy as np
+    
     wind_directions = np.radians(wind_directions)  # Convert to radians
     u = np.cos(wind_directions)
     v = np.sin(wind_directions)
